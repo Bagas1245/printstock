@@ -124,7 +124,7 @@ public class DashboardPanel extends JPanel {
             StatCard card2 = new StatCard("Total Stok", String.format("%,d", totalStok), LucideIcon.IconName.BAR_CHART3, new Color(51, 65, 85));
             StatCard card3 = new StatCard("Stok Rendah", String.valueOf(stokRendah.size()), LucideIcon.IconName.ALERT_TRIANGLE, new Color(245, 158, 11));
             card3.setAlert(stokRendah.size() > 0);
-            StatCard card4 = new StatCard("Stok Melimpah", String.valueOf(stokTinggi.size()), LucideIcon.IconName.CHECK_CIRCLE2, new Color(16, 185, 129));
+            StatCard card4 = new StatCard("Stok Tinggi", String.valueOf(stokTinggi.size()), LucideIcon.IconName.CHECK_CIRCLE2, new Color(16, 185, 129));
 
             statsGrid.add(card1);
             statsGrid.add(card2);

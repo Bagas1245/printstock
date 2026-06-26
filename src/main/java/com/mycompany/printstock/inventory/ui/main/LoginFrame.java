@@ -22,10 +22,9 @@ public class LoginFrame extends JFrame {
         setTitle("Login Sistem - Inventory Management");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Membuat window tampil di tengah layar
+        setLocationRelativeTo(null);
         setResizable(false);
 
-        // Setup Panel Utama
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
         mainPanel.setBackground(Color.WHITE);
@@ -33,7 +32,6 @@ public class LoginFrame extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Label Judul
         JLabel lblTitle = new JLabel("Silakan Login", SwingConstants.CENTER);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 22));
         gbc.gridx = 0;
@@ -41,7 +39,6 @@ public class LoginFrame extends JFrame {
         gbc.gridwidth = 2;
         mainPanel.add(lblTitle, gbc);
 
-        // Label & Input Username
         JLabel lblUsername = new JLabel("Username:");
         lblUsername.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gbc.gridy = 1;
@@ -53,7 +50,6 @@ public class LoginFrame extends JFrame {
         gbc.gridx = 1;
         mainPanel.add(txtUsername, gbc);
 
-        // Label & Input Password
         JLabel lblPassword = new JLabel("Password:");
         lblPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gbc.gridx = 0;
@@ -65,7 +61,6 @@ public class LoginFrame extends JFrame {
         gbc.gridx = 1;
         mainPanel.add(txtPassword, gbc);
 
-        // Tombol Login
         btnLogin = new JButton("Login");
         btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnLogin.setBackground(new Color(41, 128, 185));
@@ -90,7 +85,6 @@ public class LoginFrame extends JFrame {
         String username = txtUsername.getText();
         String password = new String(txtPassword.getPassword());
 
-        // Validasi input kosong
         if (username.trim().isEmpty() || password.trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Username dan Password tidak boleh kosong!", "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
@@ -112,7 +106,6 @@ public class LoginFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        // Menggunakan tema UI bawaan sistem operasi agar terlihat lebih rapi
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {

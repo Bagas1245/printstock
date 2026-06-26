@@ -11,7 +11,7 @@ public class LucideIcon {
         LAYOUT_DASHBOARD, PACKAGE, ARROW_DOWN_LEFT, ARROW_UP_RIGHT, FILE_TEXT, 
         BELL, PLUS, SEARCH, X, ALERT_TRIANGLE, CHECK_CIRCLE2, TRENDING_UP, 
         TRENDING_DOWN, CALENDAR, EDIT2, TRASH2, CHEVRON_RIGHT, MENU, 
-        BAR_CHART3, STORE, MINUS
+        BAR_CHART3, STORE, MINUS, USERS, EYE, EYE_OFF
     }
     
     public static ImageIcon createIcon(IconName name, int size, Color color) {
@@ -190,6 +190,44 @@ public class LucideIcon {
                 
             case MINUS:
                 g2.draw(new Line2D.Double(pad, s/2, s - pad, s/2));
+                break;
+                
+            case USERS:
+                // Kepala orang pertama (kiri/utama)
+                g2.draw(new Ellipse2D.Double(pad + inner*0.1, pad + inner*0.1, inner*0.4, inner*0.4));
+                // Badan orang pertama
+                Path2D p1 = new Path2D.Double();
+                p1.moveTo(pad, s - pad);
+                p1.quadTo(pad, pad + inner*0.6, pad + inner*0.3, pad + inner*0.6);
+                p1.quadTo(pad + inner*0.6, pad + inner*0.6, pad + inner*0.6, s - pad);
+                g2.draw(p1);
+                
+                // Kepala orang kedua (kanan)
+                g2.draw(new Ellipse2D.Double(pad + inner*0.6, pad + inner*0.15, inner*0.3, inner*0.3));
+                // Badan orang kedua
+                Path2D p2 = new Path2D.Double();
+                p2.moveTo(pad + inner*0.7, pad + inner*0.65);
+                p2.quadTo(s - pad, pad + inner*0.65, s - pad, s - pad);
+                g2.draw(p2);
+                break;
+
+            case EYE:
+                Path2D eye = new Path2D.Double();
+                eye.moveTo(pad, s/2);
+                eye.quadTo(s/2, pad + inner*0.1, s - pad, s/2);
+                eye.quadTo(s/2, s - pad - inner*0.1, pad, s/2);
+                g2.draw(eye);
+                g2.draw(new Ellipse2D.Double(s/2 - inner*0.15, s/2 - inner*0.15, inner*0.3, inner*0.3));
+                break;
+                
+            case EYE_OFF:
+                Path2D eyeOff = new Path2D.Double();
+                eyeOff.moveTo(pad, s/2);
+                eyeOff.quadTo(s/2, pad + inner*0.1, s - pad, s/2);
+                eyeOff.quadTo(s/2, s - pad - inner*0.1, pad, s/2);
+                g2.draw(eyeOff);
+                g2.draw(new Ellipse2D.Double(s/2 - inner*0.15, s/2 - inner*0.15, inner*0.3, inner*0.3));
+                g2.draw(new Line2D.Double(pad, pad, s - pad, s - pad));
                 break;
         }
         

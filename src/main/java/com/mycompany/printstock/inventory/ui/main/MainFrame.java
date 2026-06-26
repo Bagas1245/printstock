@@ -12,6 +12,7 @@ public class MainFrame extends JFrame {
     private JPanel contentPanel;
     private JPanel sidebarPanel; 
     private SidebarItem[] menuItems;
+    private String[] activeTabIds;
     private String activeTab = "dashboard";
     private JLabel headerTitle;
     private DashboardPanel dashboardPanel;
@@ -19,6 +20,7 @@ public class MainFrame extends JFrame {
     private StokMasukPanel stokMasukPanel;
     private StokKeluarPanel stokKeluarPanel;
     private LaporanPanel laporanPanel;
+    private ManajemenUserPanel manajemenUserPanel;
     
     private User loggedInUser; 
 
@@ -83,19 +85,38 @@ public class MainFrame extends JFrame {
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
         menuPanel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        String[][] menus = {
-            {"dashboard", "Dashboard", "LAYOUT_DASHBOARD"},
-            {"barang", "Data Barang", "PACKAGE"},
-            {"stok-masuk", "Stok Masuk", "ARROW_DOWN_LEFT"},
-            {"stok-keluar", "Stok Keluar", "ARROW_UP_RIGHT"},
-            {"laporan", "Laporan", "FILE_TEXT"}
-        };
+        String roleUser = (loggedInUser != null) ? loggedInUser.getRole().toLowerCase() : "admin";
+        java.util.List<String[]> menuList = new java.util.ArrayList<>();
 
-        menuItems = new SidebarItem[menus.length];
-        for (int i = 0; i < menus.length; i++) {
-            LucideIcon.IconName icon = LucideIcon.IconName.valueOf(menus[i][2]);
-            SidebarItem item = new SidebarItem(LucideIcon.createIcon(icon, 18, new Color(100, 116, 139)), menus[i][1]);
-            final String tab = menus[i][0];
+        menuList.add(new String[]{"dashboard", "Dashboard", "LAYOUT_DASHBOARD"});
+
+        if (roleUser.equals("staff") || roleUser.equals("staff gudang")) {
+            menuList.add(new String[]{"stok-masuk", "Input Stok Masuk", "ARROW_DOWN_LEFT"});
+            menuList.add(new String[]{"stok-keluar", "Input Stok Keluar", "ARROW_UP_RIGHT"});
+        } 
+        else if (roleUser.equals("atasan") || roleUser.equals("direktur")) {
+            menuList.add(new String[]{"laporan", "Laporan & Riwayat", "FILE_TEXT"});
+            menuList.add(new String[]{"manajemen-user", "Manajemen User", "USERS"}); 
+        } 
+        else {
+            menuList.add(new String[]{"barang", "Data Barang", "PACKAGE"});
+            menuList.add(new String[]{"stok-masuk", "Stok Masuk", "ARROW_DOWN_LEFT"});
+            menuList.add(new String[]{"stok-keluar", "Stok Keluar", "ARROW_UP_RIGHT"});
+            menuList.add(new String[]{"laporan", "Laporan Validasi", "FILE_TEXT"});
+        }
+
+        menuItems = new SidebarItem[menuList.size()];
+        activeTabIds = new String[menuList.size()];
+
+        for (int i = 0; i < menuList.size(); i++) {
+            String[] menuData = menuList.get(i); 
+            
+            LucideIcon.IconName icon = LucideIcon.IconName.valueOf(menuData[2]);
+            SidebarItem item = new SidebarItem(LucideIcon.createIcon(icon, 18, new Color(100, 116, 139)), menuData[1]);
+            
+            final String tab = menuData[0];
+            activeTabIds[i] = tab;
+            
             item.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent e) {
                     showPanel(tab);
@@ -105,6 +126,7 @@ public class MainFrame extends JFrame {
             menuPanel.add(Box.createVerticalStrut(4));
             menuItems[i] = item;
         }
+
         sidebarPanel.add(menuPanel, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel();
@@ -112,7 +134,6 @@ public class MainFrame extends JFrame {
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         bottomPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(241, 245, 249)));
 
-        // --- Status Info ---
         JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 12));
         statusPanel.setOpaque(false);
 
@@ -125,27 +146,26 @@ public class MainFrame extends JFrame {
         statusPanel.add(statusGlass);
         bottomPanel.add(statusPanel);
 
-        // --- Logout Button ---
-//        JPanel logoutPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 8));
-//        logoutPanel.setOpaque(false);
-//
-//        ModernButton logoutBtn = new ModernButton("Logout");
-//        logoutBtn.setBgColor(new Color(239, 68, 68));
-//        logoutBtn.setForeground(Color.WHITE);
-//        logoutBtn.setRadius(8);
-//        logoutBtn.setPreferredSize(new Dimension(220, 36));
-//        logoutBtn.addActionListener(e -> {
-//            int confirm = JOptionPane.showConfirmDialog(this,
-//                "Apakah Anda yakin ingin keluar?", "Konfirmasi Logout",
-//                JOptionPane.YES_NO_OPTION);
-//
-//            if (confirm == JOptionPane.YES_OPTION) {
-//                this.dispose();
-//                new LoginFrame().setVisible(true);
-//            }
-//        });
-//        logoutPanel.add(logoutBtn);
-//        bottomPanel.add(logoutPanel);
+        JPanel logoutPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 8));
+        logoutPanel.setOpaque(false);
+
+        ModernButton logoutBtn = new ModernButton("Logout");
+        logoutBtn.setBgColor(new Color(239, 68, 68));
+        logoutBtn.setForeground(Color.WHITE);
+        logoutBtn.setRadius(8);
+        logoutBtn.setPreferredSize(new Dimension(220, 36));
+        logoutBtn.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this,
+                "Apakah Anda yakin ingin keluar?", "Konfirmasi Logout",
+                JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                this.dispose();
+                new LoginFrame().setVisible(true);
+            }
+        });
+        logoutPanel.add(logoutBtn);
+        bottomPanel.add(logoutPanel);
 
         sidebarPanel.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -241,6 +261,7 @@ public class MainFrame extends JFrame {
     }
 
     private void initContent() {
+        
         contentPanel = new JPanel(new CardLayout());
         contentPanel.setOpaque(false);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -250,37 +271,49 @@ public class MainFrame extends JFrame {
         stokMasukPanel = new StokMasukPanel();
         stokKeluarPanel = new StokKeluarPanel();
         laporanPanel = new LaporanPanel();
+        manajemenUserPanel = new ManajemenUserPanel();
 
         contentPanel.add(dashboardPanel, "dashboard");
         contentPanel.add(barangPanel, "barang");
         contentPanel.add(stokMasukPanel, "stok-masuk");
         contentPanel.add(stokKeluarPanel, "stok-keluar");
         contentPanel.add(laporanPanel, "laporan");
+        contentPanel.add(manajemenUserPanel, "manajemen-user");
 
         add(contentPanel, BorderLayout.CENTER);
     }
 
-    private void showPanel(String tab) {
+private void showPanel(String tab) {
         this.activeTab = tab;
         CardLayout cl = (CardLayout) contentPanel.getLayout();
         cl.show(contentPanel, tab);
 
-        String[] titles = {"Dashboard", "Data Barang", "Stok Masuk", "Stok Keluar", "Laporan"};
-        String[] tabs = {"dashboard", "barang", "stok-masuk", "stok-keluar", "laporan"};
-        for (int i = 0; i < tabs.length; i++) {
-            if (tabs[i].equals(tab)) {
-                headerTitle.setText(titles[i]);
-                menuItems[i].setActive(true);
-            } else {
-                menuItems[i].setActive(false);
+        // 1. Atur judul header berdasarkan nama tab
+        switch (tab) {
+            case "dashboard": headerTitle.setText("Dashboard"); break;
+            case "barang": headerTitle.setText("Data Barang"); break;
+            case "stok-masuk": headerTitle.setText("Stok Masuk"); break;
+            case "stok-keluar": headerTitle.setText("Stok Keluar"); break;
+            case "laporan": headerTitle.setText("Laporan"); break;
+            case "manajemen-user": headerTitle.setText("Manajemen User"); break;
+        }
+
+        if (activeTabIds != null && menuItems != null) {
+            for (int i = 0; i < activeTabIds.length; i++) {
+                if (activeTabIds[i].equals(tab)) {
+                    menuItems[i].setActive(true);
+                } else {
+                    menuItems[i].setActive(false);
+                }
             }
         }
 
-        if (tab.equals("dashboard")) dashboardPanel.refreshData();
-        else if (tab.equals("barang")) barangPanel.refreshData();
-        else if (tab.equals("stok-masuk")) stokMasukPanel.refreshData();
-        else if (tab.equals("stok-keluar")) stokKeluarPanel.refreshData();
-        else if (tab.equals("laporan")) laporanPanel.refreshData();
+        if (tab.equals("dashboard") && dashboardPanel != null) dashboardPanel.refreshData();
+        else if (tab.equals("barang") && barangPanel != null) barangPanel.refreshData();
+        else if (tab.equals("stok-masuk") && stokMasukPanel != null) stokMasukPanel.refreshData();
+        else if (tab.equals("stok-keluar") && stokKeluarPanel != null) stokKeluarPanel.refreshData();
+        else if (tab.equals("laporan") && laporanPanel != null) laporanPanel.refreshData();
+         else if (tab.equals("manajemen-user") && manajemenUserPanel != null) manajemenUserPanel.refreshData(); 
     }
 
     private void showNotifications(Component anchor) {
