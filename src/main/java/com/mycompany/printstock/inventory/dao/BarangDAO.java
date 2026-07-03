@@ -27,10 +27,10 @@ public class BarangDAO {
 
     public List<Barang> search(String query) throws SQLException {
         List<Barang> list = new ArrayList<>();
-        String sql = "SELECT * FROM barang WHERE LOWER(nama) LIKE ? OR LOWER(kode) LIKE ? ORDER BY id";
+        String sql = "SELECT * FROM barang WHERE nama ILIKE ? OR kode ILIKE ? ORDER BY id";
         PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setString(1, "%" + query.toLowerCase() + "%");
-        ps.setString(2, "%" + query.toLowerCase() + "%");
+        ps.setString(1, "%" + query + "%");
+        ps.setString(2, "%" + query + "%");
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
             list.add(mapResultSet(rs));
@@ -56,7 +56,7 @@ public class BarangDAO {
 
     public void insert(Barang b) throws SQLException {
         String sql = "INSERT INTO barang (kode, nama, kategori, satuan, stok_minimal, stok_maksimal, stok_saat_ini, harga_beli, harga_jual) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement ps = conn.prepareStatement(sql, new String[]{"id"});
         ps.setString(1, b.getKode());
         ps.setString(2, b.getNama());
         ps.setString(3, b.getKategori());

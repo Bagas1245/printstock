@@ -15,12 +15,15 @@ public class MainFrame extends JFrame {
     private String[] activeTabIds;
     private String activeTab = "dashboard";
     private JLabel headerTitle;
+    
+    // Panel-panel aplikasi
     private DashboardPanel dashboardPanel;
     private BarangPanel barangPanel;
     private StokMasukPanel stokMasukPanel;
     private StokKeluarPanel stokKeluarPanel;
     private LaporanPanel laporanPanel;
     private ManajemenUserPanel manajemenUserPanel;
+    private ValidasiStokPanel validasiStokPanel; // TAMBAHAN: Panel Validasi
     
     private User loggedInUser; 
 
@@ -99,9 +102,11 @@ public class MainFrame extends JFrame {
             menuList.add(new String[]{"manajemen-user", "Manajemen User", "USERS"}); 
         } 
         else {
+            // ADMIN MENU
             menuList.add(new String[]{"barang", "Data Barang", "PACKAGE"});
-            menuList.add(new String[]{"stok-masuk", "Stok Masuk", "ARROW_DOWN_LEFT"});
-            menuList.add(new String[]{"stok-keluar", "Stok Keluar", "ARROW_UP_RIGHT"});
+            menuList.add(new String[]{"validasi", "Validasi Stok", "FILE_TEXT"}); // TAMBAHAN: Menu Validasi
+            menuList.add(new String[]{"stok-masuk", "Stok Masuk (Simulasi)", "ARROW_DOWN_LEFT"});
+            menuList.add(new String[]{"stok-keluar", "Stok Keluar (Simulasi)", "ARROW_UP_RIGHT"});
             menuList.add(new String[]{"laporan", "Laporan Validasi", "FILE_TEXT"});
         }
 
@@ -268,6 +273,7 @@ public class MainFrame extends JFrame {
 
         dashboardPanel = new DashboardPanel();
         barangPanel = new BarangPanel();
+        validasiStokPanel = new ValidasiStokPanel();
         stokMasukPanel = new StokMasukPanel();
         stokKeluarPanel = new StokKeluarPanel();
         laporanPanel = new LaporanPanel();
@@ -275,6 +281,7 @@ public class MainFrame extends JFrame {
 
         contentPanel.add(dashboardPanel, "dashboard");
         contentPanel.add(barangPanel, "barang");
+        contentPanel.add(validasiStokPanel, "validasi");
         contentPanel.add(stokMasukPanel, "stok-masuk");
         contentPanel.add(stokKeluarPanel, "stok-keluar");
         contentPanel.add(laporanPanel, "laporan");
@@ -283,15 +290,15 @@ public class MainFrame extends JFrame {
         add(contentPanel, BorderLayout.CENTER);
     }
 
-private void showPanel(String tab) {
+    private void showPanel(String tab) {
         this.activeTab = tab;
         CardLayout cl = (CardLayout) contentPanel.getLayout();
         cl.show(contentPanel, tab);
 
-        // 1. Atur judul header berdasarkan nama tab
         switch (tab) {
             case "dashboard": headerTitle.setText("Dashboard"); break;
             case "barang": headerTitle.setText("Data Barang"); break;
+            case "validasi": headerTitle.setText("Validasi Stok"); break; // TAMBAHAN: Judul Validasi
             case "stok-masuk": headerTitle.setText("Stok Masuk"); break;
             case "stok-keluar": headerTitle.setText("Stok Keluar"); break;
             case "laporan": headerTitle.setText("Laporan"); break;
@@ -310,10 +317,11 @@ private void showPanel(String tab) {
 
         if (tab.equals("dashboard") && dashboardPanel != null) dashboardPanel.refreshData();
         else if (tab.equals("barang") && barangPanel != null) barangPanel.refreshData();
+        else if (tab.equals("validasi") && validasiStokPanel != null) validasiStokPanel.refreshData();
         else if (tab.equals("stok-masuk") && stokMasukPanel != null) stokMasukPanel.refreshData();
         else if (tab.equals("stok-keluar") && stokKeluarPanel != null) stokKeluarPanel.refreshData();
         else if (tab.equals("laporan") && laporanPanel != null) laporanPanel.refreshData();
-         else if (tab.equals("manajemen-user") && manajemenUserPanel != null) manajemenUserPanel.refreshData(); 
+        else if (tab.equals("manajemen-user") && manajemenUserPanel != null) manajemenUserPanel.refreshData(); 
     }
 
     private void showNotifications(Component anchor) {

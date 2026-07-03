@@ -1,7 +1,7 @@
 package com.mycompany.printstock.inventory.ui.panels;
 
-import com.mycompany.printstock.inventory.model.StokMasuk;
-import com.mycompany.printstock.inventory.service.StokService;
+import com.mycompany.printstock.inventory.dao.PengajuanStokDAO;
+import com.mycompany.printstock.inventory.model.PengajuanStok;
 import com.mycompany.printstock.inventory.ui.components.*;
 import com.mycompany.printstock.inventory.ui.dialogs.StokMasukDialog;
 
@@ -12,12 +12,12 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class StokMasukPanel extends JPanel {
-    private final StokService service;
+    private final PengajuanStokDAO pengajuanDAO;
     private DefaultTableModel model;
     private JTable table;
 
     public StokMasukPanel() {
-        this.service = new StokService();
+        this.pengajuanDAO = new PengajuanStokDAO();
         setOpaque(false);
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
@@ -34,8 +34,19 @@ public class StokMasukPanel extends JPanel {
             dialog.setVisible(true);
             if (dialog.isSaved()) {
                 try {
-                    service.addStokMasuk(dialog.getBarangId(), dialog.getJumlah(), dialog.getKeterangan());
-                    ToastNotification.show((JFrame) SwingUtilities.getWindowAncestor(this), "Stok masuk berhasil dicatat", ToastNotification.Type.SUCCESS);
+                    PengajuanStok p = new PengajuanStok();
+                    p.setBarangId(dialog.getBarangId());
+                    
+                    p.setPetugasId(2); 
+                    
+                    p.setJenisMutasi("MASUK");
+                    p.setJumlah(dialog.getJumlah());
+                    p.setTanggal(new java.sql.Date(System.currentTimeMillis()));
+                    p.setKeterangan(dialog.getKeterangan());
+                    
+                    pengajuanDAO.insert(p);
+                    
+                    ToastNotification.show((JFrame) SwingUtilities.getWindowAncestor(this), "Pengajuan stok masuk dikirim (PENDING)", ToastNotification.Type.SUCCESS);
                     refreshData();
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, ex.getMessage());
@@ -44,16 +55,17 @@ public class StokMasukPanel extends JPanel {
         });
         top.add(btn);
 
-        String[] cols = {"Tanggal", "Barang", "Jumlah", "Keterangan"};
+        String[] cols = {"Tanggal", "Barang", "Status", "Jumlah", "Keterangan"};
         model = new DefaultTableModel(cols, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
         };
         table = new JTable(model);
         styleTable(table);
-        table.getColumnModel().getColumn(0).setPreferredWidth(120);
-        table.getColumnModel().getColumn(1).setPreferredWidth(220);
+        table.getColumnModel().getColumn(0).setPreferredWidth(100);
+        table.getColumnModel().getColumn(1).setPreferredWidth(200);
         table.getColumnModel().getColumn(2).setPreferredWidth(100);
-        table.getColumnModel().getColumn(3).setPreferredWidth(250);
+        table.getColumnModel().getColumn(3).setPreferredWidth(80);
+        table.getColumnModel().getColumn(4).setPreferredWidth(250);
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.setOpaque(false);
@@ -71,11 +83,19 @@ public class StokMasukPanel extends JPanel {
 
     public void refreshData() {
         try {
-            List<StokMasuk> list = service.getAllStokMasuk();
+            List<PengajuanStok> list = pengajuanDAO.findAllPending();
             model.setRowCount(0);
-            for (StokMasuk s : list) {
-                String barangNama = s.getBarang() != null ? s.getBarang().getNama() : "Unknown";
-                model.addRow(new Object[]{s.getTanggal(), barangNama, "+" + s.getJumlah(), s.getKeterangan()});
+            for (PengajuanStok p : list) {
+
+                if ("MASUK".equals(p.getJenisMutasi())) {
+                    model.addRow(new Object[]{
+                        p.getTanggal(), 
+                        p.getNamaBarang(), 
+                        "⏳ " + p.getStatus(), 
+                        "+" + p.getJumlah(), 
+                        p.getKeterangan()
+                    });
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
