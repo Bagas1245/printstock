@@ -186,25 +186,13 @@ public class DashboardPanel extends JPanel {
             }
 
             activityPanel.removeAll();
-            List<StokMasuk> masukList = service.getRecentStokMasuk(30);
-            List<StokKeluar> keluarList = service.getRecentStokKeluar(30);
-            java.util.List<Object> combined = new java.util.ArrayList<>();
-            combined.addAll(masukList);
-            combined.addAll(keluarList);
-            combined.sort((a, b) -> {
-                String ta = a instanceof StokMasuk ? ((StokMasuk)a).getTanggal() : ((StokKeluar)a).getTanggal();
-                String tb = b instanceof StokMasuk ? ((StokMasuk)b).getTanggal() : ((StokKeluar)b).getTanggal();
-                return tb.compareTo(ta);
-            });
+            // Menggunakan getRecentLogs dari service baru
+            List<com.mycompany.printstock.inventory.model.LogStok> recentLogs = service.getRecentLogs(30);
             
             int count = 0;
-            for (Object o : combined) {
+            for (com.mycompany.printstock.inventory.model.LogStok log : recentLogs) {
                 if (count++ >= 20) break; 
-                if (o instanceof StokMasuk) {
-                    activityPanel.add(createActivityItem((StokMasuk) o));
-                } else {
-                    activityPanel.add(createActivityItem((StokKeluar) o));
-                }
+                activityPanel.add(createActivityItem(log));
                 activityPanel.add(Box.createVerticalStrut(10));
             }
 
@@ -250,12 +238,18 @@ public class DashboardPanel extends JPanel {
         return p;
     }
 
-    private JPanel createActivityItem(StokMasuk s) {
-        return createActivityRow(s.getKeterangan(), s.getTanggal(), "+" + s.getJumlah(), new Color(16, 185, 129), LucideIcon.IconName.ARROW_DOWN_LEFT);
-    }
-
-    private JPanel createActivityItem(StokKeluar s) {
-        return createActivityRow(s.getKeterangan(), s.getTanggal(), "-" + s.getJumlah(), new Color(220, 38, 38), LucideIcon.IconName.ARROW_UP_RIGHT);
+    private JPanel createActivityItem(com.mycompany.printstock.inventory.model.LogStok log) {
+        boolean isMasuk = "MASUK".equals(log.getJenisMutasi());
+        String prefix = isMasuk ? "+" : "-";
+        Color color = isMasuk ? new Color(16, 185, 129) : new Color(220, 38, 38);
+        LucideIcon.IconName icon = isMasuk ? LucideIcon.IconName.ARROW_DOWN_LEFT : LucideIcon.IconName.ARROW_UP_RIGHT;
+        
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd MMM yyyy, HH:mm");
+        String dateStr = sdf.format(log.getWaktuDisetujui());
+        
+        String desc = log.getNamaBarang() + " (" + log.getJenisMutasi() + ")";
+        
+        return createActivityRow(desc, dateStr, prefix + log.getJumlah(), color, icon);
     }
 
     private JPanel createActivityRow(String desc, String date, String amount, Color color, LucideIcon.IconName icon) {

@@ -1,8 +1,6 @@
 package com.mycompany.printstock.inventory.ui.panels;
 
-import com.mycompany.printstock.inventory.model.Barang;
-import com.mycompany.printstock.inventory.model.StokKeluar;
-import com.mycompany.printstock.inventory.model.StokMasuk;
+import com.mycompany.printstock.inventory.model.LogStok;
 import com.mycompany.printstock.inventory.service.DashboardService;
 import com.mycompany.printstock.inventory.ui.components.*;
 import org.jfree.chart.ChartFactory;
@@ -17,7 +15,6 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,7 +112,7 @@ public class LaporanPanel extends JPanel {
         GlassPanel detailGlass = new GlassPanel(new BorderLayout());
         detailGlass.setRadius(16);
         detailGlass.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        JLabel detailTitle = new JLabel("Detail Riwayat Stok");
+        JLabel detailTitle = new JLabel("Detail Riwayat Approval");
         detailTitle.setFont(new Font("Inter", Font.BOLD, 14));
         detailTitle.setForeground(new Color(15, 23, 42));
         detailGlass.add(detailTitle, BorderLayout.NORTH);
@@ -138,34 +135,22 @@ public class LaporanPanel extends JPanel {
 
     public void refreshData() {
         try {
-            List<StokMasuk> listMasuk = service.getStokMasukByDateRange(startDate, endDate);
-            List<StokKeluar> listKeluar = service.getStokKeluarByDateRange(startDate, endDate);
+            List<LogStok> logs = service.getLogsByDateRange(startDate, endDate);
 
             Map<String, int[]> aggregatedStats = new HashMap<>(); 
             int totalAktivitas = 0;
 
-            class Transaction {
-                Barang barang; String type; int qty; String date;
-                Transaction(Barang b, String t, int q, String d) {
-                    this.barang = b; this.type = t; this.qty = q; this.date = d;
+            for (LogStok log : logs) {
+                String namaBarang = log.getNamaBarang();
+                aggregatedStats.putIfAbsent(namaBarang, new int[]{0, 0});
+                
+                if ("MASUK".equals(log.getJenisMutasi())) {
+                    aggregatedStats.get(namaBarang)[0] += log.getJumlah();
+                } else {
+                    aggregatedStats.get(namaBarang)[1] += log.getJumlah();
                 }
-            }
-            List<Transaction> transactions = new ArrayList<>();
-
-            for (StokMasuk sm : listMasuk) {
-                String namaBarang = sm.getBarang().getNama();
-                aggregatedStats.putIfAbsent(namaBarang, new int[]{0, 0});
-                aggregatedStats.get(namaBarang)[0] += sm.getJumlah();
-                totalAktivitas += sm.getJumlah();
-                transactions.add(new Transaction(sm.getBarang(), "Masuk", sm.getJumlah(), sm.getTanggal()));
-            }
-
-            for (StokKeluar sk : listKeluar) {
-                String namaBarang = sk.getBarang().getNama();
-                aggregatedStats.putIfAbsent(namaBarang, new int[]{0, 0});
-                aggregatedStats.get(namaBarang)[1] += sk.getJumlah();
-                totalAktivitas += sk.getJumlah();
-                transactions.add(new Transaction(sk.getBarang(), "Keluar", sk.getJumlah(), sk.getTanggal()));
+                
+                totalAktivitas += log.getJumlah();
             }
 
             totalLabel.setText("Total Aktivitas: " + String.format("%,d", totalAktivitas) + " unit");
@@ -173,8 +158,8 @@ public class LaporanPanel extends JPanel {
             chartPanel.removeAll();
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
             for (Map.Entry<String, int[]> entry : aggregatedStats.entrySet()) {
-                dataset.addValue(entry.getValue()[0], "Stok Masuk", entry.getKey());
-                dataset.addValue(entry.getValue()[1], "Stok Keluar", entry.getKey());
+                if (entry.getValue()[0] > 0) dataset.addValue(entry.getValue()[0], "Stok Masuk", entry.getKey());
+                if (entry.getValue()[1] > 0) dataset.addValue(entry.getValue()[1], "Stok Keluar", entry.getKey());
             }
 
             if (!aggregatedStats.isEmpty()) {
@@ -210,15 +195,15 @@ public class LaporanPanel extends JPanel {
             }
 
             detailPanel.removeAll();
-            if (transactions.isEmpty()) {
+            if (logs.isEmpty()) {
                 JLabel empty = new JLabel("Tidak ada data", SwingConstants.CENTER);
                 empty.setFont(new Font("Inter", Font.PLAIN, 13));
                 empty.setForeground(new Color(148, 163, 184));
                 detailPanel.add(empty);
             } else {
-                transactions.sort((a, b) -> b.date.compareTo(a.date));
-                for (Transaction t : transactions) {
-                    detailPanel.add(createDetailItem(t.barang, t.qty, t.type, t.date));
+                logs.sort((a, b) -> b.getWaktuDisetujui().compareTo(a.getWaktuDisetujui()));
+                for (LogStok log : logs) {
+                    detailPanel.add(createDetailItem(log));
                     detailPanel.add(Box.createVerticalStrut(8));
                 }
             }
@@ -230,7 +215,7 @@ public class LaporanPanel extends JPanel {
         }
     }
 
-    private JPanel createDetailItem(Barang b, int qty, String type, String date) {
+    private JPanel createDetailItem(LogStok log) {
         JPanel p = new JPanel(new BorderLayout());
         p.setOpaque(false);
         p.setBackground(new Color(248, 250, 252));
@@ -240,29 +225,32 @@ public class LaporanPanel extends JPanel {
 
         JPanel left = new JPanel(new GridLayout(2, 1, 0, 4));
         left.setOpaque(false);
-        JLabel name = new JLabel(b.getNama());
+        JLabel name = new JLabel(log.getNamaBarang());
         name.setFont(new Font("Inter", Font.BOLD, 12));
         name.setForeground(new Color(15, 23, 42));
         
-        JLabel catAndDate = new JLabel(b.getKategori() + "  •  " + date);
-        catAndDate.setFont(new Font("Inter", Font.PLAIN, 11));
-        catAndDate.setForeground(new Color(100, 116, 139));
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd MMM yyyy, HH:mm");
+        String dateStr = sdf.format(log.getWaktuDisetujui());
+        
+        JLabel info = new JLabel("Disetujui oleh: " + log.getNamaAdmin() + "  •  " + dateStr);
+        info.setFont(new Font("Inter", Font.PLAIN, 11));
+        info.setForeground(new Color(100, 116, 139));
         
         left.add(name);
-        left.add(catAndDate);
+        left.add(info);
 
         JPanel right = new JPanel(new GridLayout(2, 1, 0, 2));
         right.setOpaque(false);
 
-        boolean isMasuk = type.equals("Masuk");
+        boolean isMasuk = "MASUK".equals(log.getJenisMutasi());
         String prefix = isMasuk ? "+" : "-";
         Color amtColor = isMasuk ? new Color(16, 185, 129) : new Color(239, 68, 68);
 
-        JLabel amt = new JLabel(prefix + qty + " " + b.getSatuan(), SwingConstants.RIGHT);
+        JLabel amt = new JLabel(prefix + log.getJumlah() + " unit", SwingConstants.RIGHT);
         amt.setFont(new Font("Inter", Font.BOLD, 13));
         amt.setForeground(amtColor);
 
-        JLabel lblType = new JLabel(type, SwingConstants.RIGHT);
+        JLabel lblType = new JLabel(log.getJenisMutasi(), SwingConstants.RIGHT);
         lblType.setFont(new Font("Inter", Font.PLAIN, 10));
         lblType.setForeground(amtColor);
 
