@@ -186,7 +186,6 @@ public class DashboardPanel extends JPanel {
             }
 
             activityPanel.removeAll();
-            // Menggunakan getRecentLogs dari service baru
             List<com.mycompany.printstock.inventory.model.LogStok> recentLogs = service.getRecentLogs(30);
             
             int count = 0;
