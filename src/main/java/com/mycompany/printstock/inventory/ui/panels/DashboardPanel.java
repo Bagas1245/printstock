@@ -1,8 +1,6 @@
 package com.mycompany.printstock.inventory.ui.panels;
 
 import com.mycompany.printstock.inventory.model.Barang;
-import com.mycompany.printstock.inventory.model.StokMasuk;
-import com.mycompany.printstock.inventory.model.StokKeluar;
 import com.mycompany.printstock.inventory.service.DashboardService;
 import com.mycompany.printstock.inventory.ui.components.*;
 import org.jfree.chart.ChartFactory;

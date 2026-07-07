@@ -1,6 +1,7 @@
 package com.mycompany.printstock.inventory.service;
 
 import com.mycompany.printstock.inventory.dao.BarangDAO;
+import com.mycompany.printstock.inventory.dao.DatabaseManager;
 import com.mycompany.printstock.inventory.dao.LogStokDAO;
 import com.mycompany.printstock.inventory.model.Barang;
 import com.mycompany.printstock.inventory.model.LogStok;
@@ -87,5 +88,47 @@ public class DashboardService {
             }
         }
         return result;
+    }
+
+    public Map<String, Integer> getDashboardStats() throws SQLException {
+        Map<String, Integer> stats = new HashMap<>();
+        stats.put("total_barang", getTotalBarang());
+        
+        int masuk = 0;
+        int keluar = 0;
+        LocalDate startOfMonth = LocalDate.now().withDayOfMonth(1);
+        
+        for (LogStok log : logStokDAO.findAllLogs()) {
+            LocalDate logDate = log.getWaktuDisetujui().toLocalDateTime().toLocalDate();
+            if (!logDate.isBefore(startOfMonth)) {
+                if ("MASUK".equals(log.getJenisMutasi())) masuk += log.getJumlah();
+                else keluar += log.getJumlah();
+            }
+        }
+        stats.put("masuk_bulan_ini", masuk);
+        stats.put("keluar_bulan_ini", keluar);
+        return stats;
+    }
+
+    public List<Barang> getBarangStokMenipis() throws SQLException {
+        List<Barang> list = new ArrayList<>();
+        String query = "SELECT id, kode, nama, stok_saat_ini, satuan FROM barang WHERE stok_saat_ini <= 10 ORDER BY stok_saat_ini ASC LIMIT 5";
+        
+        java.sql.Connection conn = DatabaseManager.getInstance().getConnection();
+        
+        try (java.sql.PreparedStatement stmt = conn.prepareStatement(query);
+             java.sql.ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                Barang b = new Barang();
+                b.setId(rs.getInt("id"));
+                b.setKode(rs.getString("kode"));
+                b.setNama(rs.getString("nama"));
+                b.setStokSaatIni(rs.getInt("stok_saat_ini")); 
+                b.setSatuan(rs.getString("satuan"));
+                list.add(b);
+            }
+        }
+        return list;
     }
 }

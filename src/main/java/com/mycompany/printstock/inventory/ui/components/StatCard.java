@@ -49,4 +49,10 @@ public class StatCard extends GlassPanel {
     public void setAlert(boolean alert) {
         valueLabel.setForeground(alert ? new Color(220, 38, 38) : new Color(15, 23, 42));
     }
+    
+    public void setValue(String value) {
+        if (this.valueLabel != null) {
+            this.valueLabel.setText(value);
+        }
+    }
 }

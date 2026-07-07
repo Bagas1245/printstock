@@ -89,18 +89,14 @@ public class MainFrame extends JFrame {
         String roleUser = (loggedInUser != null) ? loggedInUser.getRole().toLowerCase() : "admin";
         java.util.List<String[]> menuList = new java.util.ArrayList<>();
 
-        menuList.add(new String[]{"dashboard", "Dashboard", "LAYOUT_DASHBOARD"});
-
-        if (roleUser.equals("staff") || roleUser.equals("staff gudang")) {
-            menuList.add(new String[]{"stok-masuk", "Input Stok Masuk", "ARROW_DOWN_LEFT"});
-            menuList.add(new String[]{"stok-keluar", "Input Stok Keluar", "ARROW_UP_RIGHT"});
-        } 
-        else if (roleUser.equals("atasan") || roleUser.equals("direktur") || roleUser.equals("owner")) {
+        if (roleUser.equals("atasan") || roleUser.equals("direktur") || roleUser.equals("owner")) {
+            menuList.add(new String[]{"dashboard", "Dashboard", "DASHBOARD"});
             menuList.add(new String[]{"riwayat", "Riwayat Mutasi", "FILE_TEXT"});
             menuList.add(new String[]{"laporan", "Laporan Stok", "BAR_CHART3"});
             menuList.add(new String[]{"manajemen-user", "Manajemen User", "USERS"}); 
         }
         else {
+            menuList.add(new String[]{"dashboard", "Dashboard", "DASHBOARD"});
             menuList.add(new String[]{"barang", "Data Barang", "PACKAGE"});
             menuList.add(new String[]{"validasi", "Validasi Stok", "BELL"});
             menuList.add(new String[]{"riwayat", "Riwayat Mutasi", "FILE_TXT"});

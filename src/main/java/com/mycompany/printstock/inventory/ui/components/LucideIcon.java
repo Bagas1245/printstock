@@ -11,7 +11,7 @@ public class LucideIcon {
         LAYOUT_DASHBOARD, PACKAGE, ARROW_DOWN_LEFT, ARROW_UP_RIGHT, FILE_TEXT, 
         BELL, PLUS, SEARCH, X, ALERT_TRIANGLE, CHECK_CIRCLE2, TRENDING_UP, 
         TRENDING_DOWN, CALENDAR, EDIT2, TRASH2, CHEVRON_RIGHT, MENU, 
-        BAR_CHART3, STORE, MINUS, USERS, EYE, EYE_OFF, FILE_TXT
+        BAR_CHART3, STORE, MINUS, USERS, EYE, EYE_OFF, FILE_TXT, TRASH, DASHBOARD
     }
     
     public static ImageIcon createIcon(IconName name, int size, Color color) {
@@ -231,6 +231,25 @@ public class LucideIcon {
                 g2.drawLine(9, 8, 15, 8);
                 g2.drawLine(9, 12, 15, 12);
                 g2.drawLine(9, 16, 13, 16);
+                break;
+                
+            case TRASH:
+                g2.drawLine(3, 6, 21, 6);
+                g2.drawLine(9, 6, 9, 4);
+                g2.drawLine(9, 4, 15, 4);
+                g2.drawLine(15, 4, 15, 6);
+                g2.drawLine(5, 6, 7, 20);
+                g2.drawLine(7, 20, 17, 20);
+                g2.drawLine(17, 20, 19, 6);
+                g2.drawLine(10, 10, 10, 16);
+                g2.drawLine(14, 10, 14, 16);
+                break;
+                
+            case DASHBOARD:
+                g2.drawRoundRect(4, 4, 6, 6, 2, 2);
+                g2.drawRoundRect(14, 4, 6, 6, 2, 2);
+                g2.drawRoundRect(4, 14, 6, 6, 2, 2);
+                g2.drawRoundRect(14, 14, 6, 6, 2, 2);
                 break;
         }
         
