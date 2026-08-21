@@ -59,6 +59,5 @@ public class ManajemenUserPanel extends JPanel {
     }
 
     private void tambahPengguna() {
-        JOptionPane.showMessageDialog(this, "Fitur form tambah pengguna akan muncul di sini.");
     }
 }

@@ -7,11 +7,9 @@ public class User {
     private String password;
     private String role;
 
-    // Konstruktor kosong
     public User() {
     }
 
-    // Konstruktor dengan parameter
     public User(int id, String nama, String username, String password, String role) {
         this.id = id;
         this.nama = nama;
@@ -19,8 +17,6 @@ public class User {
         this.password = password;
         this.role = role;
     }
-
-    // --- Getter dan Setter ---
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

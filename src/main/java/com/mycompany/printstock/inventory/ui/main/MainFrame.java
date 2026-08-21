@@ -95,12 +95,16 @@ public class MainFrame extends JFrame {
             menuList.add(new String[]{"laporan", "Laporan Stok", "BAR_CHART3"});
             menuList.add(new String[]{"manajemen-user", "Manajemen User", "USERS"}); 
         }
-        else {
+        else if(roleUser.equals("admin")){
             menuList.add(new String[]{"dashboard", "Dashboard", "DASHBOARD"});
             menuList.add(new String[]{"barang", "Data Barang", "PACKAGE"});
             menuList.add(new String[]{"validasi", "Validasi Stok", "BELL"});
             menuList.add(new String[]{"riwayat", "Riwayat Mutasi", "FILE_TXT"});
             menuList.add(new String[]{"laporan", "Laporan Validasi", "FILE_TEXT"});
+        }
+        else{
+            menuList.add(new String[]{"stokMasukPanel", "Stok Masuk", "ARROW_DOWN_LEFT"});
+            menuList.add(new String[]{"stokKeluarPanel", "Stok Keluar", "ARROW_UP_RIGHT"});
         }
 
         menuItems = new SidebarItem[menuList.size()];
