@@ -10,11 +10,13 @@ import java.awt.*;
 
 public class MainFrame extends JFrame {
     private JPanel contentPanel;
-    private JPanel sidebarPanel; 
+    private JPanel sidebarPanel;
+
     private SidebarItem[] menuItems;
     private String[] activeTabIds;
     private String activeTab = "dashboard";
     private JLabel headerTitle;
+    private JLabel headerStokLabel;
     
     private DashboardPanel dashboardPanel;
     private BarangPanel barangPanel;
@@ -23,11 +25,10 @@ public class MainFrame extends JFrame {
     private ManajemenUserPanel manajemenUserPanel;
     private ValidasiStokPanel validasiStokPanel;
     
-    private User loggedInUser; 
+    private User loggedInUser;
 
     public MainFrame(User user) {
         this.loggedInUser = user;
-
         setTitle("PrintStock - Toko Percetakan");
         setSize(1280, 800);
         setLocationRelativeTo(null);
@@ -38,6 +39,7 @@ public class MainFrame extends JFrame {
         initSidebar();
         initHeader();
         initContent();
+
         showPanel("dashboard");
     }
 
@@ -48,43 +50,10 @@ public class MainFrame extends JFrame {
         sidebarPanel.setLayout(new BorderLayout());
         sidebarPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(226, 232, 240)));
         
-        JPanel logoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 16));
-        logoPanel.setOpaque(false);
-        logoPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(241, 245, 249)));
-
-        JPanel iconBox = new JPanel() {
-            @Override protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(15, 23, 42));
-                g2.fillRoundRect(0, 0, getWidth()-1, getHeight()-1, 8, 8);
-                g2.dispose();
-            }
-        };
-        iconBox.setOpaque(false);
-        iconBox.setPreferredSize(new Dimension(32, 32));
-        iconBox.setLayout(new GridBagLayout());
-        iconBox.add(new JLabel(LucideIcon.createIcon(LucideIcon.IconName.STORE, 16, Color.WHITE)));
-
-        JPanel textPanel = new JPanel(new GridLayout(2, 1));
-        textPanel.setOpaque(false);
-        JLabel title = new JLabel("PrintStock");
-        title.setFont(new Font("Inter", Font.BOLD, 14));
-        title.setForeground(new Color(15, 23, 42));
-        JLabel sub = new JLabel("Toko Percetakan");
-        sub.setFont(new Font("Inter", Font.PLAIN, 11));
-        sub.setForeground(new Color(100, 116, 139));
-        textPanel.add(title);
-        textPanel.add(sub);
-
-        logoPanel.add(iconBox);
-        logoPanel.add(textPanel);
-        sidebarPanel.add(logoPanel, BorderLayout.NORTH);
-
         JPanel menuPanel = new JPanel();
         menuPanel.setOpaque(false);
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
-        menuPanel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        menuPanel.setBorder(BorderFactory.createEmptyBorder(24, 12, 12, 12));
 
         String roleUser = (loggedInUser != null) ? loggedInUser.getRole().toLowerCase() : "admin";
         java.util.List<String[]> menuList = new java.util.ArrayList<>();
@@ -111,7 +80,7 @@ public class MainFrame extends JFrame {
         activeTabIds = new String[menuList.size()];
 
         for (int i = 0; i < menuList.size(); i++) {
-            String[] menuData = menuList.get(i); 
+            String[] menuData = menuList.get(i);
             
             LucideIcon.IconName icon = LucideIcon.IconName.valueOf(menuData[2]);
             SidebarItem item = new SidebarItem(LucideIcon.createIcon(icon, 18, new Color(100, 116, 139)), menuData[1]);
@@ -138,19 +107,16 @@ public class MainFrame extends JFrame {
 
         JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 12));
         statusPanel.setOpaque(false);
-
         GlassPanel statusGlass = new GlassPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
         statusGlass.setRadius(12);
         statusGlass.setBackground(new Color(248, 250, 252));
         statusGlass.setBorderColor(new Color(241, 245, 249));
         statusGlass.setPreferredSize(new Dimension(220, 60));
-
         statusPanel.add(statusGlass);
         bottomPanel.add(statusPanel);
 
         JPanel logoutPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 8));
         logoutPanel.setOpaque(false);
-
         ModernButton logoutBtn = new ModernButton("Logout");
         logoutBtn.setBgColor(new Color(239, 68, 68));
         logoutBtn.setForeground(Color.WHITE);
@@ -160,7 +126,6 @@ public class MainFrame extends JFrame {
             int confirm = JOptionPane.showConfirmDialog(this,
                 "Apakah Anda yakin ingin keluar?", "Konfirmasi Logout",
                 JOptionPane.YES_NO_OPTION);
-
             if (confirm == JOptionPane.YES_OPTION) {
                 this.dispose();
                 new LoginFrame().setVisible(true);
@@ -170,7 +135,6 @@ public class MainFrame extends JFrame {
         bottomPanel.add(logoutPanel);
 
         sidebarPanel.add(bottomPanel, BorderLayout.SOUTH);
-
         add(sidebarPanel, BorderLayout.WEST);
     }
 
@@ -180,41 +144,95 @@ public class MainFrame extends JFrame {
         header.setPreferredSize(new Dimension(0, 64));
         header.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(226, 232, 240)));
 
-        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 12));
+        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 12));
         left.setOpaque(false);
 
         ModernButton menuBtn = new ModernButton(LucideIcon.createIcon(LucideIcon.IconName.MENU, 20, new Color(71, 85, 105)), "");
         menuBtn.setGhost(true);
         menuBtn.setPreferredSize(new Dimension(40, 40));
-        
         menuBtn.addActionListener(e -> {
             sidebarPanel.setVisible(!sidebarPanel.isVisible());
         });
+        left.add(menuBtn);
+
+        JPanel iconBox = new JPanel() {
+            @Override protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(15, 23, 42));
+                g2.fillRoundRect(0, 0, getWidth()-1, getHeight()-1, 8, 8);
+                g2.dispose();
+            }
+        };
+        iconBox.setOpaque(false);
+        iconBox.setPreferredSize(new Dimension(36, 36));
+        iconBox.setLayout(new GridBagLayout());
+        iconBox.add(new JLabel(LucideIcon.createIcon(LucideIcon.IconName.STORE, 18, Color.WHITE)));
+
+        JPanel textPanel = new JPanel(new GridLayout(2, 1));
+        textPanel.setOpaque(false);
+        JLabel title = new JLabel("PrintStock");
+        title.setFont(new Font("Inter", Font.BOLD, 15));
+        title.setForeground(new Color(15, 23, 42));
+        JLabel sub = new JLabel("Toko Percetakan");
+        sub.setFont(new Font("Inter", Font.PLAIN, 11));
+        sub.setForeground(new Color(100, 116, 139));
+        textPanel.add(title);
+        textPanel.add(sub);
+
+        left.add(iconBox);
+        left.add(textPanel);
+        
+        JLabel separator = new JLabel(" | ");
+        separator.setFont(new Font("Inter", Font.PLAIN, 18));
+        separator.setForeground(new Color(226, 232, 240));
+        left.add(separator);
 
         headerTitle = new JLabel("Dashboard");
         headerTitle.setFont(new Font("Inter", Font.BOLD, 16));
         headerTitle.setForeground(new Color(15, 23, 42));
-
-        left.add(menuBtn);
         left.add(headerTitle);
+        
+        header.add(left, BorderLayout.WEST);
 
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 12));
-        right.setOpaque(false);
+        JPanel center = new JPanel(new FlowLayout(FlowLayout.CENTER, 36, 12));
+        center.setOpaque(false);
+        
+        headerStokLabel = new JLabel("Total Stok: Memuat...");
+        headerStokLabel.setFont(new Font("Inter", Font.BOLD, 13));
+        headerStokLabel.setForeground(new Color(71, 85, 105));
+        headerStokLabel.setIcon(LucideIcon.createIcon(LucideIcon.IconName.PACKAGE, 18, new Color(71, 85, 105)));
+        headerStokLabel.setIconTextGap(8);
+        
+        String namaSession = (loggedInUser != null) ? loggedInUser.getNama() : "Staff";
+        JLabel lblUserAktif = new JLabel("User Aktif: " + namaSession);
+        lblUserAktif.setFont(new Font("Inter", Font.BOLD, 13));
+        lblUserAktif.setForeground(new Color(71, 85, 105));
+        lblUserAktif.setIcon(LucideIcon.createIcon(LucideIcon.IconName.USERS, 18, new Color(71, 85, 105)));
+        lblUserAktif.setIconTextGap(8);
 
         ModernButton notifBtn = new ModernButton(LucideIcon.createIcon(LucideIcon.IconName.BELL, 20, new Color(71, 85, 105)), "");
         notifBtn.setGhost(true);
         notifBtn.setPreferredSize(new Dimension(40, 40));
         notifBtn.addActionListener(e -> showNotifications(notifBtn));
+        
+        center.add(headerStokLabel);
+        center.add(lblUserAktif);
+        center.add(notifBtn);
+        
+        header.add(center, BorderLayout.CENTER);
+
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 12));
+        right.setOpaque(false);
 
         JPanel profileContainer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         profileContainer.setOpaque(false);
 
         JPanel userTextPanel = new JPanel(new GridLayout(2, 1, 0, 2));
         userTextPanel.setOpaque(false);
-
-        String namaUser = (loggedInUser != null) ? loggedInUser.getNama() : "Unknown User";
+        
         String roleUser = (loggedInUser != null) ? loggedInUser.getRole() : "Staff";
-
+        
         boolean isConnected = false;
         try {
             var conn = com.mycompany.printstock.inventory.dao.DatabaseManager.getInstance().getConnection();
@@ -226,10 +244,10 @@ public class MainFrame extends JFrame {
         }
 
         String dbStatusText = isConnected 
-            ? "<span style='color:#10B981;'>● Connected</span>" 
-            : "<span style='color:#EF4444;'>● Disconnected</span>";
+            ? "<span style='color:#10B981;'>  Connected</span>" 
+            : "<span style='color:#EF4444;'>  Disconnected</span>";
 
-        JLabel nameLabel = new JLabel(namaUser + " (" + roleUser + ")");
+        JLabel nameLabel = new JLabel(namaSession + " (" + roleUser + ")");
         nameLabel.setFont(new Font("Inter", Font.BOLD, 13));
         nameLabel.setForeground(new Color(15, 23, 42));
         nameLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -254,21 +272,31 @@ public class MainFrame extends JFrame {
         profileContainer.add(userTextPanel);
         profileContainer.add(avatar);
 
-        right.add(notifBtn);
         right.add(profileContainer);
 
-        header.add(left, BorderLayout.WEST);
         header.add(right, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
+        
+        updateHeaderStats();
+    }
+
+    private void updateHeaderStats() {
+        if (headerStokLabel != null) {
+            try {
+                int totalStok = new DashboardService().getTotalStok();
+                headerStokLabel.setText("Total Stok: " + String.format("%,d", totalStok));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void initContent() {
-        
         contentPanel = new JPanel(new CardLayout());
         contentPanel.setOpaque(false);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
-        dashboardPanel = new DashboardPanel();
+        dashboardPanel = new DashboardPanel(loggedInUser);
         barangPanel = new BarangPanel();
         validasiStokPanel = new ValidasiStokPanel();
         riwayatMutasiPanel = new RiwayatMutasiPanel();
@@ -290,6 +318,8 @@ public class MainFrame extends JFrame {
         CardLayout cl = (CardLayout) contentPanel.getLayout();
         cl.show(contentPanel, tab);
 
+        updateHeaderStats();
+        
         switch (tab) {
             case "dashboard": headerTitle.setText("Dashboard"); break;
             case "barang": headerTitle.setText("Data Barang"); break;

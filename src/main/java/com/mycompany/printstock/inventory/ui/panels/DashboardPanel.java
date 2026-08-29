@@ -1,11 +1,13 @@
 package com.mycompany.printstock.inventory.ui.panels;
 
 import com.mycompany.printstock.inventory.model.Barang;
+import com.mycompany.printstock.inventory.model.User;
 import com.mycompany.printstock.inventory.service.DashboardService;
 import com.mycompany.printstock.inventory.ui.components.*;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -23,8 +25,12 @@ public class DashboardPanel extends JPanel {
     private JPanel chartPanel;
     private JPanel alertsPanel;
     private JPanel activityPanel;
+    
+    private User loggedInUser;
+    private JLabel lblTotalStokTop;
 
-    public DashboardPanel() {
+    public DashboardPanel(User loggedInUser) {
+        this.loggedInUser = loggedInUser;
         this.service = new DashboardService();
         setOpaque(false);
         setLayout(new BorderLayout());
@@ -34,32 +40,41 @@ public class DashboardPanel extends JPanel {
     }
 
     private void initComponents() {
-        JPanel content = new JPanel();
+        JPanel content = new JPanel(new BorderLayout(0, 16));
         content.setOpaque(false);
-        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
         statsGrid = new JPanel(new GridLayout(1, 4, 16, 16));
         statsGrid.setOpaque(false);
-        statsGrid.setMaximumSize(new Dimension(Integer.MAX_VALUE, 120));
-        statsGrid.setPreferredSize(new Dimension(800, 110));
-        content.add(statsGrid);
-        content.add(Box.createVerticalStrut(24));
+        
+        content.add(statsGrid, BorderLayout.NORTH);
 
-        JPanel bottom = new JPanel(new GridLayout(1, 2, 24, 0));
+        JPanel bottom = new JPanel(new BorderLayout(24, 0));
         bottom.setOpaque(false);
-        bottom.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
         chartPanel = new JPanel(new BorderLayout());
         chartPanel.setOpaque(false);
+
         GlassPanel chartGlass = new GlassPanel(new BorderLayout());
         chartGlass.setRadius(16);
-        chartGlass.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        chartGlass.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        
+        JPanel chartHeaderPanel = new JPanel(new BorderLayout());
+        chartHeaderPanel.setOpaque(false);
+        chartHeaderPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
+
+        JLabel chartTitle = new JLabel("Aktivitas Stok Mingguan");
+        chartTitle.setFont(new Font("Inter", Font.BOLD, 14));
+        chartTitle.setForeground(new Color(15, 23, 42));
+        chartHeaderPanel.add(chartTitle, BorderLayout.WEST);
+
+        chartGlass.add(chartHeaderPanel, BorderLayout.NORTH);
         chartGlass.add(chartPanel, BorderLayout.CENTER);
-        bottom.add(chartGlass);
+        bottom.add(chartGlass, BorderLayout.CENTER); 
 
         JPanel rightCol = new JPanel();
         rightCol.setOpaque(false);
         rightCol.setLayout(new BoxLayout(rightCol, BoxLayout.Y_AXIS));
+        rightCol.setPreferredSize(new Dimension(360, 0));
 
         alertsPanel = new JPanel();
         alertsPanel.setOpaque(false);
@@ -70,18 +85,19 @@ public class DashboardPanel extends JPanel {
         alertsScroll.getViewport().setOpaque(false);
         alertsScroll.setBorder(BorderFactory.createEmptyBorder());
         alertsScroll.getVerticalScrollBar().setUnitIncrement(16);
-        alertsScroll.getVerticalScrollBar().setPreferredSize(new Dimension(5, 0)); 
+        alertsScroll.getVerticalScrollBar().setPreferredSize(new Dimension(5, 0));
 
         GlassPanel alertsGlass = new GlassPanel(new BorderLayout(0, 10));
         alertsGlass.setRadius(16);
         alertsGlass.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+
         JLabel alertsTitle = new JLabel("Peringatan Stok");
         alertsTitle.setFont(new Font("Inter", Font.BOLD, 14));
         alertsTitle.setForeground(new Color(15, 23, 42));
         alertsGlass.add(alertsTitle, BorderLayout.NORTH);
-        alertsGlass.add(alertsScroll, BorderLayout.CENTER); 
-        rightCol.add(alertsGlass);
+        alertsGlass.add(alertsScroll, BorderLayout.CENTER);
 
+        rightCol.add(alertsGlass);
         rightCol.add(Box.createVerticalStrut(16));
 
         activityPanel = new JPanel();
@@ -93,28 +109,37 @@ public class DashboardPanel extends JPanel {
         activityScroll.getViewport().setOpaque(false);
         activityScroll.setBorder(BorderFactory.createEmptyBorder());
         activityScroll.getVerticalScrollBar().setUnitIncrement(16);
-        activityScroll.getVerticalScrollBar().setPreferredSize(new Dimension(5, 0)); 
+        activityScroll.getVerticalScrollBar().setPreferredSize(new Dimension(5, 0));
 
         GlassPanel actGlass = new GlassPanel(new BorderLayout(0, 10));
         actGlass.setRadius(16);
         actGlass.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+
         JLabel actTitle = new JLabel("Aktivitas Terakhir");
         actTitle.setFont(new Font("Inter", Font.BOLD, 14));
         actTitle.setForeground(new Color(15, 23, 42));
         actGlass.add(actTitle, BorderLayout.NORTH);
-        actGlass.add(activityScroll, BorderLayout.CENTER); 
-        rightCol.add(actGlass);
+        actGlass.add(activityScroll, BorderLayout.CENTER);
 
-        bottom.add(rightCol);
-        content.add(bottom);
+        rightCol.add(actGlass);
+        
+        bottom.add(rightCol, BorderLayout.EAST); 
+
+        content.add(bottom, BorderLayout.CENTER);
         add(content, BorderLayout.CENTER);
     }
 
     public void refreshData() {
         try {
             statsGrid.removeAll();
+
             int totalBarang = service.getTotalBarang();
             int totalStok = service.getTotalStok();
+
+            if(lblTotalStokTop != null) {
+                lblTotalStokTop.setText("Total Stok: " + String.format("%,d", totalStok));
+            }
+            
             List<Barang> stokRendah = service.getStokRendah();
             List<Barang> stokTinggi = service.getStokTinggi();
 
@@ -132,21 +157,24 @@ public class DashboardPanel extends JPanel {
             chartPanel.removeAll();
             Map<String, int[]> weekly = service.getWeeklyActivity();
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+            boolean hasData = false;
             for (Map.Entry<String, int[]> entry : weekly.entrySet()) {
                 dataset.addValue(entry.getValue()[0], "Stok Masuk", entry.getKey());
                 dataset.addValue(entry.getValue()[1], "Stok Keluar", entry.getKey());
+                if (entry.getValue()[0] > 0 || entry.getValue()[1] > 0) hasData = true;
             }
 
-            JFreeChart chart = ChartFactory.createBarChart(
-                "Aktivitas Stok Mingguan", "", "Jumlah", dataset
-            );
+            JFreeChart chart = ChartFactory.createBarChart(null, "", "Jumlah", dataset);
             chart.setBackgroundPaint(new Color(0, 0, 0, 0));
-            chart.setPadding(new RectangleInsets(10, 10, 15, 10));
+            chart.setPadding(new RectangleInsets(0, 0, 0, 0));
 
             CategoryPlot plot = chart.getCategoryPlot();
             plot.setBackgroundPaint(new Color(0, 0, 0, 0));
             plot.setOutlineVisible(false);
             plot.setRangeGridlinePaint(new Color(241, 245, 249));
+            plot.setInsets(new RectangleInsets(0, 0, 0, 0));
+            plot.setAxisOffset(new RectangleInsets(0, 0, 0, 0));
 
             BarRenderer renderer = (BarRenderer) plot.getRenderer();
             renderer.setSeriesPaint(0, new Color(15, 23, 42));
@@ -157,10 +185,17 @@ public class DashboardPanel extends JPanel {
 
             plot.getDomainAxis().setTickLabelFont(new Font("Inter", Font.PLAIN, 11));
             plot.getDomainAxis().setCategoryLabelPositions(org.jfree.chart.axis.CategoryLabelPositions.UP_45);
-            
-            plot.getRangeAxis().setTickLabelFont(new Font("Inter", Font.PLAIN, 11));
             plot.getDomainAxis().setAxisLineVisible(false);
-            plot.getRangeAxis().setAxisLineVisible(false);
+
+            NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+            rangeAxis.setTickLabelFont(new Font("Inter", Font.PLAIN, 11));
+            rangeAxis.setAxisLineVisible(false);
+            rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+            rangeAxis.setUpperMargin(0.1); 
+
+            if (!hasData) {
+                rangeAxis.setRange(0, 5); 
+            }
 
             ChartPanel cp = new ChartPanel(chart);
             cp.setOpaque(false);
@@ -168,7 +203,7 @@ public class DashboardPanel extends JPanel {
             cp.setMinimumDrawHeight(0);
             cp.setMaximumDrawWidth(2000);
             cp.setMaximumDrawHeight(2000);
-            
+
             chartPanel.add(cp, BorderLayout.CENTER);
 
             alertsPanel.removeAll();
@@ -188,7 +223,7 @@ public class DashboardPanel extends JPanel {
             
             int count = 0;
             for (com.mycompany.printstock.inventory.model.LogStok log : recentLogs) {
-                if (count++ >= 20) break; 
+                if (count++ >= 20) break;
                 activityPanel.add(createActivityItem(log));
                 activityPanel.add(Box.createVerticalStrut(10));
             }
@@ -197,6 +232,15 @@ public class DashboardPanel extends JPanel {
             repaint();
 
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showNotifications(Component anchor) {
+        try {
+            NotificationPopup popup = new NotificationPopup(service.getStokRendah(), service.getStokTinggi());
+            popup.show(anchor, 0, anchor.getHeight() + 8);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

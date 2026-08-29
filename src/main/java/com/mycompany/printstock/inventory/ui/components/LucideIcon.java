@@ -20,12 +20,14 @@ public class LucideIcon {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setStroke(new BasicStroke(size * 0.09f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g2.setColor(color);
+        
         double s = size;
-        double pad = s * 0.15;
+        double pad = s * 0.18; 
         double inner = s - 2 * pad;
         
         switch (name) {
             case LAYOUT_DASHBOARD:
+            case DASHBOARD:
                 drawRect(g2, pad, pad, inner * 0.45, inner * 0.45);
                 drawRect(g2, pad + inner * 0.55, pad, inner * 0.45, inner * 0.45);
                 drawRect(g2, pad + inner * 0.55, pad + inner * 0.55, inner * 0.45, inner * 0.45);
@@ -61,6 +63,7 @@ public class LucideIcon {
                 break;
                 
             case FILE_TEXT:
+            case FILE_TXT:
                 drawRect(g2, pad, pad, inner, inner);
                 g2.draw(new Line2D.Double(pad + inner*0.35, pad, pad + inner*0.35, pad + inner*0.25));
                 g2.draw(new Line2D.Double(pad + inner*0.35, pad + inner*0.25, pad + inner, pad + inner*0.25));
@@ -146,6 +149,7 @@ public class LucideIcon {
                 break;
                 
             case TRASH2:
+            case TRASH:
                 g2.draw(new Line2D.Double(pad + inner*0.2, pad + inner*0.25, s - pad - inner*0.2, pad + inner*0.25));
                 g2.draw(new Line2D.Double(pad + inner*0.35, pad + inner*0.25, pad + inner*0.3, s - pad - inner*0.15));
                 g2.draw(new Line2D.Double(s - pad - inner*0.35, pad + inner*0.25, s - pad - inner*0.3, s - pad - inner*0.15));
@@ -206,7 +210,7 @@ public class LucideIcon {
                 p2.quadTo(s - pad, pad + inner*0.65, s - pad, s - pad);
                 g2.draw(p2);
                 break;
-
+                
             case EYE:
                 Path2D eye = new Path2D.Double();
                 eye.moveTo(pad, s/2);
@@ -224,32 +228,6 @@ public class LucideIcon {
                 g2.draw(eyeOff);
                 g2.draw(new Ellipse2D.Double(s/2 - inner*0.15, s/2 - inner*0.15, inner*0.3, inner*0.3));
                 g2.draw(new Line2D.Double(pad, pad, s - pad, s - pad));
-                break;
-                
-            case FILE_TXT:
-                g2.drawRoundRect(5, 3, 14, 18, 4, 4);
-                g2.drawLine(9, 8, 15, 8);
-                g2.drawLine(9, 12, 15, 12);
-                g2.drawLine(9, 16, 13, 16);
-                break;
-                
-            case TRASH:
-                g2.drawLine(3, 6, 21, 6);
-                g2.drawLine(9, 6, 9, 4);
-                g2.drawLine(9, 4, 15, 4);
-                g2.drawLine(15, 4, 15, 6);
-                g2.drawLine(5, 6, 7, 20);
-                g2.drawLine(7, 20, 17, 20);
-                g2.drawLine(17, 20, 19, 6);
-                g2.drawLine(10, 10, 10, 16);
-                g2.drawLine(14, 10, 14, 16);
-                break;
-                
-            case DASHBOARD:
-                g2.drawRoundRect(4, 4, 6, 6, 2, 2);
-                g2.drawRoundRect(14, 4, 6, 6, 2, 2);
-                g2.drawRoundRect(4, 14, 6, 6, 2, 2);
-                g2.drawRoundRect(14, 14, 6, 6, 2, 2);
                 break;
         }
         
